@@ -1,0 +1,66 @@
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>تحقق من الموقع</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 50px;
+      background-color: #f2f2f2;
+    }
+    h1 {
+      color: #333;
+    }
+    .message {
+      font-size: 20px;
+      color: #3d3d3d;
+    }
+    .inside {
+      color: green;
+    }
+    .outside {
+      color: red;
+    }
+  </style>
+</head>
+<body>
+  <h1>جارٍ التحقق من موقعك...</h1>
+  <div id="message" class="message"></div>
+  <script>
+    const allowedLat = 30.042871;  // إحداثيات جامعة مصر
+    const allowedLon = 31.015721;
+    const allowedRadius = 100;   // 100 متر
+
+    function getDistance(lat1, lon1, lat2, lon2) {
+      const R = 6371e3; // نصف قطر الأرض بالمتر
+      const φ1 = lat1 * Math.PI/180;
+      const φ2 = lat2 * Math.PI/180;
+      const Δφ = (lat2-lat1) * Math.PI/180;
+      const Δλ = (lon2-lon1) * Math.PI/180;
+      const a = Math.sin(Δφ/2) * Math.sin(Δφ/2) +
+                Math.cos(φ1) * Math.cos(φ2) *
+                Math.sin(Δλ/2) * Math.sin(Δλ/2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+      return R * c;
+    }
+
+    navigator.geolocation.getCurrentPosition(position => {
+      const userLat = position.coords.latitude;
+      const userLon = position.coords.longitude;
+      const distance = getDistance(userLat, userLon, allowedLat, allowedLon);
+
+      const messageElement = document.getElementById('message');
+      if (distance <= allowedRadius) {
+        messageElement.innerHTML = "<span class='inside'>أنت داخل المنطقة المسموحة ✅</span>";
+      } else {
+        messageElement.innerHTML = "<span class='outside'>أنت خارج المنطقة المسموحة ❌</span>";
+      }
+    }, error => {
+      document.getElementById('message').innerHTML = "⚠️ لم نستطع تحديد موقعك. الرجاء السماح بالوصول للموقع.";
+    });
+  </script>
+</body>
+</html>
